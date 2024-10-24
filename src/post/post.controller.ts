@@ -16,6 +16,7 @@ import { PaginationQueryDto } from 'src/common/pagination.dto';
 import { Post as PostModel } from './post.entity';
 import { Public } from 'src/common/public.decorator';
 import { LoggedInUserId } from 'src/common/loggedinUserId.decorator';
+
 @Controller('posts')
 export class PostController {
   constructor(private readonly postService: PostService) {}
@@ -34,6 +35,20 @@ export class PostController {
   findAll(@Query() paginationQuery: PaginationQueryDto) {
     const { page, limit, search } = paginationQuery;
     return this.postService.getPosts(Number(page), Number(limit), search);
+  }
+
+  @Get('/user')
+  findAllByUser(
+    @Query() paginationQuery: PaginationQueryDto,
+    @LoggedInUserId() userId: number,
+  ) {
+    const { page, limit, search } = paginationQuery;
+    return this.postService.getPosts(
+      Number(page),
+      Number(limit),
+      search,
+      userId,
+    );
   }
 
   @Public()

@@ -32,7 +32,6 @@ export class PostService {
     }
   }
 
-  @Public()
   async getPosts(
     page: number = paginationConfig.defaultPage,
     limit: number = paginationConfig.defaultLimit,
@@ -40,9 +39,13 @@ export class PostService {
     userId?: number,
   ) {
     const offset = (page - 1) * limit;
+    const userCondition = userId ? { UserId: userId } : {};
     const searchCondition = search
-      ? [{ title: Like(`%${search}%`) }, { content: Like(`%${search}%`) }]
-      : [];
+      ? [
+          { title: Like(`%${search}%`), ...userCondition },
+          { content: Like(`%${search}%`), ...userCondition },
+        ]
+      : { ...userCondition };
     const [posts, count] = await this.postRepository.findAndCount({
       where: searchCondition,
       relations: ['user'],
@@ -66,7 +69,7 @@ export class PostService {
 
     const modifiedPosts = posts.map((post) => ({
       ...post,
-      aut9horName: post.user.name,
+      authorName: post.user.name,
       user: undefined,
     }));
 
